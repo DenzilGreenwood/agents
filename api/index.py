@@ -225,17 +225,17 @@ def get_agents():
         )
 
     agents = []
-    for identity in _state["iam"].identities.values():
+    for identity in _state["iam"]._identities.values():
         if identity.principal_type == PrincipalType.AGENT:
-            agents.append(
-                {
-                    "id": identity.principal_id,
-                    "name": identity.display_name,
-                    "tenant": identity.tenant_id,
-                    "roles": list(identity.roles),
-                    "attributes": identity.attributes,
-                }
-            )
+            # Convert all non-serializable types to serializable ones
+            agent_data = {
+                "id": str(identity.principal_id),
+                "name": str(identity.display_name),
+                "tenant": str(identity.tenant_id),
+                "roles": list(identity.roles) if identity.roles else [],
+                "attributes": dict(identity.attributes) if identity.attributes else {}
+            }
+            agents.append(agent_data)
 
     return jsonify({"agents": agents})
 
@@ -446,7 +446,7 @@ def get_roles():
         )
 
     roles = []
-    for role in _state["iam"].roles.values():
+    for role in _state["iam"]._roles.values():
         permissions = []
         for perm in role.permissions:
             permissions.append(
