@@ -1,0 +1,21 @@
+{
+  "name": "ciaf-demo",
+  "version": "1.0.0",
+  "description": "CIAF Agentic Workflow Demo - Interactive Vercel Deployment",
+  "scripts": {
+    "dev": "python run_local.py",
+    "deploy": "vercel"
+  },
+  "keywords": [
+    "ciaf",
+    "agents",
+    "authorization",
+    "iam",
+    "pam",
+    "audit",
+    "compliance",
+    "vercel"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

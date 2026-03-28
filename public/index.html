@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIAF Agentic Workflow Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🤖 CIAF Agentic Execution Boundaries</h1>
+                <p class="subtitle">Interactive Demo - Identity, Authorization & Audit Framework</p>
+                <div class="status-badge" id="statusBadge">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Initializing...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Info Panel -->
+            <div class="info-panel">
+                <h2>📚 About This Demo</h2>
+                <p>This interactive demonstration showcases CIAF's agentic workflow capabilities:</p>
+                <ul>
+                    <li><strong>Identity & Access Management (IAM):</strong> Role-based permissions with ABAC conditions</li>
+                    <li><strong>Multi-Tenant Isolation:</strong> Agents can only access resources from their own tenant</li>
+                    <li><strong>Privilege Elevation (PAM):</strong> Time-bound grants for sensitive operations</li>
+                    <li><strong>Evidence Vault:</strong> Cryptographically signed audit trail</li>
+                    <li><strong>Compliance:</strong> HIPAA, GDPR, SOX obligation tracking</li>
+                </ul>
+            </div>
+
+            <!-- Agents Section -->
+            <div class="section">
+                <h2>🤖 Available Agents</h2>
+                <div id="agentsContainer" class="agents-grid">
+                    <div class="loading">Loading agents...</div>
+                </div>
+            </div>
+
+            <!-- Action Execution Section -->
+            <div class="section">
+                <h2>⚡ Execute Action</h2>
+                <div class="execution-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="agentSelect">Select Agent:</label>
+                            <select id="agentSelect" class="form-control">
+                                <option value="">-- Select Agent --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="actionSelect">Action:</label>
+                            <select id="actionSelect" class="form-control">
+                                <option value="read_data">Read Data</option>
+                                <option value="export_report">Export Report</option>
+                                <option value="delete_data">Delete Data (Requires Elevation)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="resourceId">Resource ID:</label>
+                            <input type="text" id="resourceId" class="form-control" placeholder="e.g., dataset-2026-q1">
+                        </div>
+                        <div class="form-group">
+                            <label for="resourceTenant">Resource Tenant:</label>
+                            <select id="resourceTenant" class="form-control">
+                                <option value="acme-corp">acme-corp</option>
+                                <option value="techstart-inc">techstart-inc</option>
+                                <option value="other-tenant">other-tenant (will fail)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="justification">Justification:</label>
+                        <input type="text" id="justification" class="form-control" placeholder="Business justification for this action">
+                    </div>
+                    <div class="button-group">
+                        <button id="executeBtn" class="btn btn-primary">Execute Action</button>
+                        <button id="elevateBtn" class="btn btn-warning">Request Privilege Elevation</button>
+                    </div>
+                </div>
+                <div id="executionResult" class="result-panel hidden"></div>
+            </div>
+
+            <!-- Roles Section -->
+            <div class="section">
+                <h2>🎭 Roles & Permissions</h2>
+                <div id="rolesContainer" class="roles-grid">
+                    <div class="loading">Loading roles...</div>
+                </div>
+            </div>
+
+            <!-- Audit Trail Section -->
+            <div class="section">
+                <h2>📜 Audit Trail & Evidence Chain</h2>
+                <div class="audit-controls">
+                    <button id="refreshAuditBtn" class="btn btn-secondary">Refresh Audit Trail</button>
+                    <div class="audit-status">
+                        <span id="chainStatus" class="badge">Chain Status: Unknown</span>
+                        <span id="totalActions" class="badge">Total Actions: 0</span>
+                    </div>
+                </div>
+                <div id="auditContainer" class="audit-trail">
+                    <div class="loading">No actions recorded yet</div>
+                </div>
+            </div>
+
+            <!-- Code Examples -->
+            <div class="section">
+                <h2>💻 Quick Start Code</h2>
+                <div class="code-tabs">
+                    <button class="tab-btn active" data-tab="setup">Setup</button>
+                    <button class="tab-btn" data-tab="execution">Execution</button>
+                    <button class="tab-btn" data-tab="elevation">Elevation</button>
+                </div>
+                <div class="code-panel active" data-tab="setup">
+                    <pre><code># Install CIAF
+pip install pyciaf==1.3.1
+
+# Initialize components
+from ciaf.agents import IAMStore, PAMStore, PolicyEngine, EvidenceVault, ToolExecutor
+
+iam = IAMStore()
+pam = PAMStore()
+vault = EvidenceVault(signing_secret="your-secret")
+policy = PolicyEngine(iam, pam, sensitive_actions={"delete_data"})
+executor = ToolExecutor(policy, vault, pam)</code></pre>
+                </div>
+                <div class="code-panel" data-tab="execution">
+                    <pre><code># Create action request
+request = ActionRequest(
+    action="read_data",
+    resource=dataset,
+    params={"dataset_id": "dataset-2026-q1"},
+    justification="Q1 analysis",
+    requested_by=agent
+)
+
+# Execute with authorization
+result = executor.execute_tool("read_data", request)
+
+if result.allowed and result.executed:
+    print(f"✓ Success: {result.result}")
+else:
+    print(f"✗ Denied: {result.reason}")</code></pre>
+                </div>
+                <div class="code-panel" data-tab="elevation">
+                    <pre><code># Grant privilege elevation for 30 minutes
+grant = pam.create_grant(
+    principal_id="agent-001",
+    elevated_role="data_admin",
+    duration_minutes=30,
+    approved_by="manager",
+    ticket_reference="TICKET-2026-001",
+    purpose="Emergency data deletion"
+)
+
+# Verify chain integrity
+chain_valid = vault.verify_chain()
+print(f"Evidence chain valid: {chain_valid}")</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>CIAF v1.3.1 - Agentic Execution Boundaries Demo | Built with ❤️ for secure AI agent operations</p>
+            <p><a href="https://github.com/yourusername/ciaf" target="_blank">GitHub</a> | <a href="/docs">Documentation</a></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
